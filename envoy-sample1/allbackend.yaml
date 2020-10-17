@@ -34,23 +34,23 @@ static_resources:
             - endpoint:
                 address:
                   socket_address:
-                    address: husseinmac
-                    port_value: 1111
+                    address: localhost
+                    port_value: 9091
             
             - endpoint:
                 address:
                   socket_address:
-                    address: husseinmac
-                    port_value: 2222
+                    address: localhost
+                    port_value: 9092
                   
             - endpoint:
                 address:
                   socket_address:
-                    address: husseinmac
-                    port_value: 3333
+                    address: localhost
+                    port_value: 9093
 
             - endpoint:
                 address:
                   socket_address:
-                    address: husseinmac
-                    port_value: 4444
+                    address: localhost
+                    port_value: 9094
