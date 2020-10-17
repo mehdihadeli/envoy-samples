@@ -1,3 +1,11 @@
+### Links
+
+[Load balancing and HTTP Routing with Envoy Proxy](https://www.youtube.com/watch?v=D0cuv1AEftE)
+
+[HashiCorp Consul in Action with Shipyard](https://www.youtube.com/watch?v=q-KZeIzu_AM&t=609s)
+
+[Shipyard Demo - Easily create local Consul service mesh clusters on Kubernetes](https://www.youtube.com/watch?v=jV8Jeuxb4ok&t=17s)
+
 ### Guid To Install Envoy Locally
 
 [How to install Envoy Proxy on Ubuntu 18](https://www.liquidweb.com/kb/how-to-install-envoy-proxy-on-ubuntu-18/)
