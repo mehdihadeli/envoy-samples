@@ -1,0 +1,14 @@
+version_info: "0"
+resources:
+- '@type': type.googleapis.com/envoy.api.v2.RouteConfiguration
+  name: local_route # route_config_name on the lds.yaml
+  virtual_hosts:
+  - name: "EnvoyNetCore"
+    domains:
+    - "envoynetcore.com"
+    routes:
+    - match:
+        prefix: /
+      route:
+        cluster: "EnvoyNetCore" # cluster name on the cds.yaml we want to point to.
+        timeout: 60s

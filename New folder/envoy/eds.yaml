@@ -1,0 +1,11 @@
+version_info: "0"
+resources:
+- '@type': type.googleapis.com/envoy.api.v2.ClusterLoadAssignment
+  cluster_name: ""
+  endpoints:
+  - lb_endpoints:
+    - endpoint:
+        address:
+          socket_address:
+            address: localhost # The address of the application.
+            port_value: "8001" # Listening port from the application.

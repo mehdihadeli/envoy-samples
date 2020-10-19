@@ -1,0 +1,11 @@
+version_info: "0"
+resources:
+- '@type': type.googleapis.com/envoy.api.v2.Cluster
+  name: "EnvoyNetCore"
+  connect_timeout: 5s
+  lb_policy: ROUND_ROBIN
+  type: EDS
+  eds_cluster_config:
+    service_name: "EnvoyNetCore"
+    eds_config:
+      path: /etc/envoy/eds.yaml
