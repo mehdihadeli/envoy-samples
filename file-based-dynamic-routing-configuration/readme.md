@@ -67,7 +67,7 @@ clusters:
     connect_timeout: 0.25s
     lb_policy: ROUND_ROBIN
     type: EDS
-    eds_cluster_config:
+    eds_cluster_config: #https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/cluster/v3/cluster.proto.html?highlight=eds_cluster_config#config-cluster-v3-cluster-edsclusterconfig
       service_name: localservices
       eds_config:
         path: '/etc/envoy/eds.conf'
@@ -81,9 +81,9 @@ The contents of [eds.conf](envoy/eds.conf) is a JSON definition of the same info
 
 Create [eds.conf](envoy/eds.conf) file with the following content:
 
-``` yaml
+``` json
 {
-  "version_info": "0",
+  "version_info": "0", #https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/discovery.proto#discoveryresponse
   "resources": [{
     "@type": "type.googleapis.com/envoy.api.v2.ClusterLoadAssignment",
     "cluster_name": "localservices",
@@ -107,7 +107,7 @@ Create [eds.conf](envoy/eds.conf) file with the following content:
 
 we can use `hostname -I` to get host address for our docker container and inner our envoy configuration we can't use `host.docker.internal` because it just work in context docker like `dockerfile` and `docker-compose` but we can't use it inner our envoy configuration and we should use host address in order to access other docker container such as access to `containersol/hello-world` container on expose port `8001`. we can test it after get host ip with `hostname -I`
 
-```
+``` bash
 curl 172.17.0.1:8001
 ```
 
@@ -139,20 +139,35 @@ Based on the current EDS configuration, Envoy will send all the traffic to a sin
 
 [config.bootstrap.v3.Bootstrap](https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/bootstrap/v3/bootstrap.proto#config-bootstrap-v3-bootstrap)
 
+[config.cluster.v3.Cluster.EdsClusterConfig](https://github.com/envoyproxy/envoy/blob/5c7737266e671ea9801c14d2779ca30bb0032bf7/api/envoy/config/cluster/v3/cluster.proto#L180)
+
 [Mostly static with dynamic EDS](https://www.envoyproxy.io/docs/envoy/latest/configuration/overview/examples)
 
-[config.cluster.v3.Cluster.EdsClusterConfig](https://github.com/envoyproxy/envoy/blob/5c7737266e671ea9801c14d2779ca30bb0032bf7/api/envoy/config/cluster/v3/cluster.proto#L180)
+[service.discovery.v3.DiscoveryResponse](https://www.envoyproxy.io/docs/envoy/latest/api-v3/service/discovery/v3/discovery.proto#service-discovery-v3-discoveryresponse)
+
+[service.discovery.v3.DiscoveryRequest](https://www.envoyproxy.io/docs/envoy/latest/api-v3/service/discovery/v3/discovery.proto#service-discovery-v3-discoveryrequest)
 
 [config.core.v3.ConfigSource](https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/core/v3/config_source.proto#envoy-v3-api-msg-config-core-v3-configsource)
 
 [supported config formats](https://www.envoyproxy.io/docs/envoy/latest/operations/cli#cmdoption-c)
 
+[config.bootstrap.v2.Bootstrap.DynamicResources](https://www.envoyproxy.io/docs/envoy/latest/api-v2/config/bootstrap/v2/bootstrap.proto#config-bootstrap-v2-bootstrap-dynamicresources)
+
+[core.ConfigSource](https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/core/config_source.proto#envoy-api-msg-core-configsource)
+
+[core.ApiConfigSource](https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/core/config_source.proto#envoy-api-msg-core-apiconfigsource)
+
+[xDS REST and gRPC protocol](https://www.envoyproxy.io/docs/envoy/latest/api-docs/xds_protocol#xds-rest-and-grpc-protocol)
+
+[Resource Types](https://www.envoyproxy.io/docs/envoy/latest/api-docs/xds_protocol#resource-types)
+
+[Filesystem subscriptions](https://www.envoyproxy.io/docs/envoy/latest/api-docs/xds_protocol#filesystem-subscriptions)
 
 With the configuration based on EDS, when the services need to be scaled up a new endpoint can be added to the `eds.conf`. Envoy will then automatically include the changes.
 
 Replace the configuration with the following to add a new endpoint to the cluster.
 
-``` yaml
+``` json
 {
   "version_info": "0",
   "resources": [{
@@ -199,15 +214,34 @@ Envoy should automatically reload the configuration and add the new node into th
 
 [examples](https://www.envoyproxy.io/docs/envoy/latest/configuration/overview/examples)
 
+[service.discovery.v3.DiscoveryResponse](https://www.envoyproxy.io/docs/envoy/latest/api-v3/service/discovery/v3/discovery.proto#service-discovery-v3-discoveryresponse)
+
+[service.discovery.v3.DiscoveryRequest](https://www.envoyproxy.io/docs/envoy/latest/api-v3/service/discovery/v3/discovery.proto#service-discovery-v3-discoveryrequest)
+
+[config.bootstrap.v2.Bootstrap.DynamicResources](https://www.envoyproxy.io/docs/envoy/latest/api-v2/config/bootstrap/v2/bootstrap.proto#config-bootstrap-v2-bootstrap-dynamicresources)
+
+[core.ConfigSource](https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/core/config_source.proto#envoy-api-msg-core-configsource)
+
+[core.ApiConfigSource](https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/core/config_source.proto#envoy-api-msg-core-apiconfigsource)
+
+[xDS REST and gRPC protocol](https://www.envoyproxy.io/docs/envoy/latest/api-docs/xds_protocol#xds-rest-and-grpc-protocol)
+
+[Resource Types](https://www.envoyproxy.io/docs/envoy/latest/api-docs/xds_protocol#resource-types)
+
+[Filesystem subscriptions](https://www.envoyproxy.io/docs/envoy/latest/api-docs/xds_protocol#filesystem-subscriptions)
+
+
 With EDS in place, it's possible to move to scale up the upstream clusters. If we wanted to be able to dynamically add new domains and clusters, the Cluster Discovery Service (CDS) API needs to be implemented. In the following steps, we are configuring the Cluster Discovery Service (CDS) and The Listener Discovery Service (LDS).
 
 You need to create a file to put the configuration for the clusters: [cds.conf](envoy/cds.conf).
 
-``` yaml
+bellow json file actually is a [DiscoveryResponse](https://www.envoyproxy.io/docs/envoy/latest/api-v3/service/discovery/v3/discovery.proto#envoy-v3-api-msg-service-discovery-v3-discoveryresponse)
+
+``` json
 {
-  "version_info": "0",
+  "version_info": "0",   
   "resources": [{
-      "@type": "type.googleapis.com/envoy.api.v2.Cluster",
+      "@type": "type.googleapis.com/envoy.api.v2.Cluster", #https://www.envoyproxy.io/docs/envoy/latest/api-docs/xds_protocol#resource-types
       "name": "targetCluster",
             "connect_timeout": "0.25s",
             "lb_policy": "ROUND_ROBIN",
@@ -224,7 +258,9 @@ You need to create a file to put the configuration for the clusters: [cds.conf](
 
 And also, you need to create a file to put the configuration for the listeners: [lds.conf](envoy/lds.conf).
 
-``` yaml
+[Listener discovery service (LDS)](https://www.envoyproxy.io/docs/envoy/latest/configuration/listeners/lds)
+
+``` json
 {
     "version_info": "0",
     "resources": [{
@@ -279,18 +315,18 @@ And also, you need to create a file to put the configuration for the listeners: 
 }
 ```
 
-The content of files cds.conf and lds.conf is a JSON definition of with the same information defined within our static configuration.
+The content of files cds.conf and lds.conf is a `JSON definition` of with the same information defined within our static configuration but we can also use yaml.[Filesystem subscriptions](https://www.envoyproxy.io/docs/envoy/latest/api-docs/xds_protocol#filesystem-subscriptions)
 
-With the externalized the configuration of clusters and listeners, you need to modify your Envoy's configuration to make reference to these files. This can be accomplish changing all the static_resources for dynamic_resources.
+With the `externalized` the configuration of `clusters` and `listeners`, you need to `modify` your `Envoy's configuration` to make `reference` to these files. This can be accomplish changing all the `static_resources` for `dynamic_resources`.
 
 Open the Envoy configuration file [envoy1.yaml](envoy/envoy1.yaml), and add the following configuration:
 
 ``` bash
-dynamic_resources:
+dynamic_resources: #https://www.envoyproxy.io/docs/envoy/latest/api-v2/config/bootstrap/v2/bootstrap.proto#config-bootstrap-v2-bootstrap-dynamicresources
   cds_config:
-    path: "/etc/envoy/cds.conf"
+    path: "/etc/envoy/cds.conf" #https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/core/config_source.proto#envoy-api-msg-core-configsource
   lds_config:
-    path: "/etc/envoy/lds.conf"
+    path: "/etc/envoy/lds.conf" #https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/core/config_source.proto#envoy-api-msg-core-configsource
 ```
 
 After that, launch the container with the following command:
@@ -299,10 +335,158 @@ After that, launch the container with the following command:
 docker run --name=proxy-eds-cds-lds-filebased -d \
     -p 9902:9901 \
     -p 81:10000 \
-    -v $(pwd)/envoy/:/etc/envoy \
-    -v $(pwd)/envoy/envoy1.yaml:/etc/envoy/envoy.yaml \
+    -v envoy/:/etc/envoy \
+    -v envoy/envoy1.yaml:/etc/envoy/envoy.yaml \
     envoyproxy/envoy:v1.16-latest
 ```
 Note: to avoid port conflicts, we exposed the ports with offset 1.
 
 Execute the following command: `curl localhost:81`
+
+
+### CDS Apply Changes
+
+With the configuration based on CDS, LDS and EDS, we can dynamically add a new cluster.
+
+Open the file [cds.conf](envoy/cds.conf).
+
+### Add new cluster
+
+We'll call this new cluster `newTargetCluster`. Replace the configuration with the following to add a new cluster.
+
+``` json
+{
+  "version_info": "0",
+  "resources": [{
+      "@type": "type.googleapis.com/envoy.api.v2.Cluster",
+      "name": "targetCluster",
+            "connect_timeout": "0.25s",
+            "lb_policy": "ROUND_ROBIN",
+            "type": "EDS",
+            "eds_cluster_config": {
+                "service_name": "localservices",
+                "eds_config": {
+                    "path": "/etc/envoy/eds.conf"
+                }
+            }
+  },
+  {
+      "@type": "type.googleapis.com/envoy.api.v2.Cluster",
+      "name": "newTargetCluster",
+            "connect_timeout": "0.25s",
+            "lb_policy": "ROUND_ROBIN",
+            "type": "EDS",
+            "eds_cluster_config": {
+                "service_name": "localservices",
+                "eds_config": {
+                    "path": "/etc/envoy/eds1.conf"
+                }
+            }
+  }]
+}
+```
+
+You also need to create the eds_cluster_config file for this new cluster. Create the file [eds1.conf](envoy/eds1.conf) with this content:
+
+``` json
+{
+  "version_info": "0",
+  "resources": [{
+    "@type": "type.googleapis.com/envoy.api.v2.ClusterLoadAssignment",
+    "cluster_name": "localservices",
+    "endpoints": [{
+      "lb_endpoints": [{
+        "endpoint": {
+          "address": {
+            "socket_address": {
+              "address": "172.17.0.1",
+              "port_value": 8003
+            }
+          }
+        }
+      },
+        {
+        "endpoint": {
+          "address": {
+            "socket_address": {
+              "address": "172.17.0.1",
+              "port_value": 8004
+            }
+          }
+        }
+      }]
+    }]
+  }]
+}
+```
+And you can use this new cluster, in the listener that you previously configured. Open the file lds.conf. Replace the target cluster with the name of the new cluster newTargetCluster.
+
+``` json
+"route": {
+      "cluster": "newTargetCluster"
+  }
+```
+The configuration of lds.conf should look like:
+
+``` json
+"filter_chains": [
+    {
+        "filters": [
+            {
+                "name": "envoy.http_connection_manager",
+                "config": {
+                    "stat_prefix": "ingress_http",
+                    "codec_type": "AUTO",
+                    "route_config": {
+                        "name": "local_route",
+                        "virtual_hosts": [
+                            {
+                                "name": "local_service",
+                                "domains": [
+                                    "*"
+                                ],
+                                "routes": [
+                                    {
+                                        "match": {
+                                            "prefix": "/"
+                                        },
+                                        "route": {
+                                            "cluster": "newTargetCluster"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "http_filters": [
+                        {
+                            "name": "envoy.router"
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+]
+```
+
+Start two other new HTTP servers to handle the incoming requests.
+
+``` bash
+docker run --name hello-world3 -d -p 8003:80 containersol/hello-world
+docker run --name hello-world4 -d -p 8004:80 containersol/hello-world
+```
+
+Based on how Docker handles file inode tracking, sometimes the filesystem change isn't triggered and detected. Force the change with the command: 
+
+``` bash
+mv cds.conf tmp; mv tmp cds.conf; mv lds.conf tmp; mv tmp lds.conf
+```
+
+Envoy should automatically reload the configuration and add the new cluster. You can try running the following command: 
+
+```
+curl localhost:81
+```
+
+You can notice with the response of each request, that the ID of the nodes changes, corresponding to the nodes of newTargetCluster.

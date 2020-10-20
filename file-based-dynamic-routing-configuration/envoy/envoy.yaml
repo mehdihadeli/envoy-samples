@@ -38,7 +38,7 @@ static_resources:
     connect_timeout: 0.25s
     lb_policy: ROUND_ROBIN
     type: EDS
-    eds_cluster_config:
+    eds_cluster_config: 
       service_name: localservices
       eds_config:
         path: '/etc/envoy/eds.conf'
