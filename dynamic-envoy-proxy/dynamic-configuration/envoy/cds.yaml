@@ -6,6 +6,6 @@ resources:
   lb_policy: ROUND_ROBIN
   type: EDS
   eds_cluster_config:
-    service_name: "EnvoyNetCore"
+    service_name: "localservices"
     eds_config:
       path: /etc/envoy/eds.yaml

@@ -3,9 +3,9 @@ resources:
 - '@type': type.googleapis.com/envoy.api.v2.RouteConfiguration
   name: local_route # route_config_name on the lds.yaml
   virtual_hosts:
-  - name: "EnvoyNetCore"
+  - name: "local_service"
     domains:
-    - "envoynetcore.com"
+    - "*"
     routes:
     - match:
         prefix: /
