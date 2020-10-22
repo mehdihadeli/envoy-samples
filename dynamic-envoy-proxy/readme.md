@@ -69,7 +69,7 @@ After that, all the requests to port `84` will be proxied to google.com
 
 ### Envoy Dynamic Configurations
 
-The envoy.yaml file is important. The file is an entry point for Envoy. As seen on ExecStart command above. Envoy never tracking the changes on the file after it started. It is okay. There is no reason to change the file. It is really simple and does not contain any detail.
+The envoy.yaml file is important. The file is an entry point for Envoy. Envoy never tracking the changes on the file after it started. It is okay. There is no reason to change the file. It is really simple and does not contain any detail.
 We will copy all the envoy configuration files to the folder /etc/envoy
 
 **envoy.yaml**
@@ -90,7 +90,7 @@ dynamic_resources:
     path: /etc/envoy/lds.yaml
 ```
 
-The node section is required. Envoy exposes a local administration interface that can be used to query and modify different aspects of the server. There is two dynamic config file provided. One for cluster definitionsand another one for listeners.
+The node section is required. Envoy exposes a local administration interface that can be used to query and modify different aspects of the server. There is two dynamic config file provided. One for `cluster definitions` ( /etc/envoy/cds.yaml) and another one for `listeners` (/etc/envoy/lds.yaml).
 
 **lds.yaml**
 
@@ -118,7 +118,7 @@ resources:
         - name: envoy.router
 ```
 
-The listener_0 configuration listens to port 80 and redirects all the requests to the route definition(/etc/envoy/rds.yaml) named local_route.
+The listener_0 configuration listens to port 80 and redirects all the requests to the route definition `(/etc/envoy/rds.yaml)` named `local_route`.
 
 **rds.yaml**
 
@@ -128,7 +128,7 @@ resources:
 - '@type': type.googleapis.com/envoy.api.v2.RouteConfiguration
   name: local_route # route_config_name on the lds.yaml
   virtual_hosts:
-  - name: "EnvoyNetCore"
+  - name: "local_service"
     domains:
     - "envoynetcore.com"
     routes:
@@ -138,7 +138,7 @@ resources:
         cluster: "EnvoyNetCore" # cluster name on the cds.yaml we want to point to.
         timeout: 60s
 ```
-The route definition that passes all the requests to the cluster named EnvoyNetCore. The cluster is known from the envoy.yaml file. (/etc/envoy/cds.yaml)
+The route definition that passes all the requests to the `cluster` named `EnvoyNetCore`. The cluster is known from the envoy.yaml file. `(/etc/envoy/cds.yaml)`
 
 **cds.yaml**
 
@@ -151,12 +151,12 @@ resources:
   lb_policy: ROUND_ROBIN
   type: EDS
   eds_cluster_config:
-    service_name: "EnvoyNetCore"
+    service_name: "localservices"
     eds_config:
       path: /etc/envoy/eds.yaml
 ```
 
-Here is the cluster definition. You can declare more than one cluster on there. Cluster definitions points to endpoint definitions(eds.yaml). Also, at this level, you can configure a circuit breaker for the cluster.
+Here is the `cluster definition`. You can declare more than one cluster on there. Cluster definitions points to endpoint definitions `(eds.yaml)`. Also, at this level, you can configure a `circuit breaker` for the `cluster`.
 
 **eds.yaml**
 
@@ -164,7 +164,7 @@ Here is the cluster definition. You can declare more than one cluster on there. 
 version_info: "0"
 resources:
 - '@type': type.googleapis.com/envoy.api.v2.ClusterLoadAssignment
-  cluster_name: ""
+  cluster_name: "localservices"
   endpoints:
   - lb_endpoints:
     - endpoint:
@@ -174,7 +174,9 @@ resources:
             port_value: "8181" # Listening port from the application.
 ```
 
-The last part of the configuration file is eds.yaml. This file contains address and port values to call any endpoint we want to include for the cluster.
+The last part of the configuration file is `eds.yaml`. This file contains `address` and `port values` to call any endpoint we want to include for the cluster.
+
+> You can define only one resource item at this point but more than one endpoints can be defined.
 
 ``` bash
 docker run --name=proxy-dynamic -d \
@@ -183,10 +185,7 @@ docker run --name=proxy-dynamic -d \
     -v $(pwd)/dynamic-configuration/envoy/envoy.yaml:/etc/envoy/envoy.yaml \
     envoyproxy/envoy:v1.16-latest
 ```
-
 After that, all the requests to port `85` will be proxied to our `hello-world` containers
-
-> You can define only one resource item at this point but more than one endpoints can be defined.
 
 > You can change these configuration files on the fly but Envoy can’t apply the change until you move the file with the same location & same name. So, create the new configurations as separate files with different names and move the files with the original names to the same path/name of the original ones.
 
