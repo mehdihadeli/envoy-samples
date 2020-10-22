@@ -333,11 +333,11 @@ After that, launch the container with the following command:
 
 ``` bash
 docker run --name=proxy-eds-cds-lds-filebased -d \
-    -p 9902:9901 \
-    -p 81:10000 \
-    -v envoy/:/etc/envoy \
-    -v envoy/envoy1.yaml:/etc/envoy/envoy.yaml \
-    envoyproxy/envoy:v1.16-latest
+-p 9902:9901 \
+-p 81:10000 \
+-v $(pwd)/envoy/:/etc/envoy \
+-v $(pwd)/envoy/envoy.yaml:/etc/envoy/envoy1.yaml \
+envoyproxy/envoy:v1.16-latest
 ```
 Note: to avoid port conflicts, we exposed the ports with offset 1.
 
