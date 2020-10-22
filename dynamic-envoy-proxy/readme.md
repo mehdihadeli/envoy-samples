@@ -10,11 +10,15 @@ static_resources:
   listeners:
   - name: listener_0
     address:
-      socket_address: { address: 0.0.0.0, port_value: 10000 }
-filter_chains:
+      socket_address:
+        protocol: TCP
+        address: 0.0.0.0
+        port_value: 10000
+    filter_chains:
     - filters:
-      - name: envoy.http_connection_manager
-        config:
+      - name: envoy.filters.network.http_connection_manager
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
           stat_prefix: ingress_http
           route_config:
             name: local_route
@@ -22,30 +26,46 @@ filter_chains:
             - name: local_service
               domains: ["*"]
               routes:
-              - match: { prefix: "/" }
-                route: { host_rewrite: www.google.com, cluster: service_google }
+              - match:
+                  prefix: "/"
+                route:
+                  host_rewrite_literal: www.google.com
+                  cluster: service_google
           http_filters:
-          - name: envoy.router
+          - name: envoy.filters.http.router
   clusters:
   - name: service_google
-    connect_timeout: 0.25s
+    connect_timeout: 30s
     type: LOGICAL_DNS
+    # Comment out the following line to test on v6 networks
     dns_lookup_family: V4_ONLY
     lb_policy: ROUND_ROBIN
-    hosts: [{ socket_address: { address: google.com, port_value: 443 }}]
-    tls_context: { sni: www.google.com }
+    load_assignment:
+      cluster_name: service_google
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: www.google.com
+                port_value: 443
+    transport_socket:
+      name: envoy.transport_sockets.tls
+      typed_config:
+        "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
+        sni: www.google.com
 ```
 Save the file as envoy.yaml and easily run on a docker container with the command below.
 
 ``` bash
-docker run --name=proxy-dynamic2 -d \
-    -p 83:10000 \
-    -v $(pwd)/envoy/:/etc/envoy \
-    -v $(pwd)/envoy/envoy.yaml:/etc/envoy/envoy.yaml \
+docker run --name=proxy-static -d \
+    -p 84:10000 \
+    -v $(pwd)/static-configuration/envoy/:/etc/envoy \
+    -v $(pwd)/static-configuration/envoy/envoy.yaml:/etc/envoy/envoy.yaml \
     envoyproxy/envoy:v1.16-latest
 ```
 
-After that, all the requests to port 83 will be proxied to google.com
+After that, all the requests to port `84` will be proxied to google.com
 
 ### Envoy Dynamic Configurations
 
@@ -156,6 +176,15 @@ resources:
 
 The last part of the configuration file is eds.yaml. This file contains address and port values to call any endpoint we want to include for the cluster.
 
+``` bash
+docker run --name=proxy-dynamic -d \
+    -p 85:10000 \
+    -v $(pwd)/dynamic-configuration/envoy/:/etc/envoy \
+    -v $(pwd)/dynamic-configuration/envoy/envoy.yaml:/etc/envoy/envoy.yaml \
+    envoyproxy/envoy:v1.16-latest
+```
+
+After that, all the requests to port `85` will be proxied to our `hello-world` containers
 
 > You can define only one resource item at this point but more than one endpoints can be defined.
 
