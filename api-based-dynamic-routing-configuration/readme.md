@@ -56,7 +56,7 @@ After that you need to define how `eds_cluster` are `resolved`. For this example
 - name: eds_cluster
     type: STATIC
     connect_timeout: 0.25s
-    hosts: [{ socket_address: { address: 172.18.0.4, port_value: 8080 }}]
+    hosts: [{ socket_address: { address: 127.0.0.1, port_value: 8080 }}]
 ```
 in this example with dynamic endpoint discovery via an EDS REST management server listening on `172.18.0.4:8080` is provided above.
 
@@ -137,13 +137,13 @@ python main.py
 we can use `hostname -I` to get host address for our docker container and inner our envoy configuration we can't use `host.docker.internal` because it just work in context docker like `dockerfile` and `docker-compose` but we can't use it inner our envoy configuration and we should use host address in order to access other docker container such as access to `containersol/hello-world` container on expose port `8001`. we can test it after get host ip with `hostname -I`
 
 ``` bash
-curl 172.19.76.137:8001
+curl 172.27.211.139:8001
 ```
 
 ```
 curl http://localhost:8080/
 or
-curl 172.19.76.137:8080
+curl 172.27.211.139:8080
 ```
 
 we should see the following output on SDS stdout indicating an inbound Envoy discovery request:
@@ -170,6 +170,7 @@ then on the envoy proxy stdout, something like:
 ...
 [2018-04-29 22:59:10.331][157796][debug][pool] source/common/http/http1/conn_pool.cc:115] [C2] client disconnected
 ```
+
 Basically, this shows no updates were recieved from the endpoint
 
 You can verify that envoy doesn't know anything about this endpoint by attempting to connect through to it (envoy listener):
@@ -183,3 +184,123 @@ curl -v  http://localhost:80
 no healthy upstreams
 ```
 
+### Add endpoint to EDS
+
+Now we're ready to add an upstream service configuration to the EDS server.
+
+connect to SDS servers UI console in browser at:
+```
+http://localhost:8080/
+```
+
+#### Create Endpoint
+
+Since we defined the service as `myservice` in the `envoy_config.yaml`, we can need to register an endpoint against it:
+
+``` json
+curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' -d '{
+  "hosts": [
+    {
+      "ip_address": "172.27.211.139", // we use host address for access to our container
+      "port": 8001, //our upstream service
+      "tags": {
+        "az": "us-central1-a",
+        "canary": false,
+        "load_balancing_weight": 50
+      }
+    }
+  ]
+}' http://localhost:8080/edsservice/myservice
+```
+What this will do is set some endpoints for `myservice`. Now, envoy will query SDS for membership.
+
+Verify the endpoint is registered:
+
+``` bash
+curl -X GET "http://localhost:8080/edsservice/myservice" -H "accept: application/json"
+```
+
+``` json
+{
+  "hosts": [
+    {
+      "ip_address": "172.27.211.139", 
+      "port": 8001, 
+      "tags": {
+        "az": "us-central1-a",
+        "canary": false,
+        "load_balancing_weight": 50
+      }
+    }
+  ]
+}
+```
+### Check client connectivity via envoy
+
+Since we already started the upstream service above, you can connect to it via envoy:
+
+``` bash
+curl -i http://localhost
+```
+
+### Delete Endpoint
+
+Ok, so now we've dynamically added in an endpoint...lets remove it by the SDS server's custom API and emptying out its hosts: []
+
+``` bash
+curl -X PUT --header 'Content-Type: application/json' --header 'Accept: application/json' -d '{
+  "hosts": [  ]
+}' http://localhost:8080/edsservice/myservice
+```
+
+Now try the endpoint, you should see `no healthy upstream` message from envoy
+
+``` bash
+$ curl -v  http://localhost:10000/
+```
+
+### Rinse and repeat
+Ok, you can continue to play with the endpoints by adding and removing new upstream services on different ports:
+
+eg:
+
+```
+$ curl 172.27.211.139:8001
+$ curl 172.27.211.139:8002
+```
+and then using the API to add hosts to the SDS server (use the PUT endpoint to do that)
+
+``` json
+curl -X PUT --header 'Content-Type: application/json' --header 'Accept: application/json' -d '{
+    "hosts": [
+   {
+      "ip_address":"172.27.211.139",
+      "port":8001,
+      "tags":{
+         "az":"us-central1-a",
+         "canary":false,
+         "load_balancing_weight":50
+      }
+   },
+   {
+      "ip_address":"172.27.211.139",
+      "port":8002,
+      "tags":{
+         "az":"us-central1-a",
+         "canary":false,
+         "load_balancing_weight":50
+      }
+   }
+]
+    }' http://localhost:8080/edsservice/myservice
+```
+
+``` bash
+curl -X GET "http://localhost:8080/edsservice/myservice" -H "accept: application/json"
+```
+Now we can verify that the traffic is balanced with all the nodes registered with the following command:
+
+``` bash
+while true; do curl http://localhost; sleep .5; printf '\n'; done
+```
+You will see different responses according to the service that processed the request.

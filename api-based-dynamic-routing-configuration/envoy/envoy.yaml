@@ -3,7 +3,7 @@ admin:
   address:
     socket_address:
       address: 127.0.0.1
-      port_value: 9000
+      port_value: 9001 
 
 node:
   cluster: mycluster
@@ -48,4 +48,4 @@ static_resources:
   - name: eds_cluster
     type: STATIC
     connect_timeout: 0.25s
-    hosts: [{ socket_address: { address: 172.18.0.4, port_value: 8080 }}]
+    hosts: [{ socket_address: { address: 127.0.0.1, port_value: 8080 }}]
