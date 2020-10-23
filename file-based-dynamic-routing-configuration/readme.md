@@ -83,7 +83,7 @@ Create [eds.conf](envoy/eds.conf) file with the following content:
 
 ``` json
 {
-  "version_info": "0", #https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/discovery.proto#discoveryresponse
+  "version_info": "0", //https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/discovery.proto#discoveryresponse
   "resources": [{
     "@type": "type.googleapis.com/envoy.api.v2.ClusterLoadAssignment",
     "cluster_name": "localservices",
@@ -92,7 +92,7 @@ Create [eds.conf](envoy/eds.conf) file with the following content:
         "endpoint": {
           "address": {
             "socket_address": {
-              "address": "172.17.0.1", #hostname -I    -this is ip address of host for docker, localhost dosn't work because we are in another container
+              "address": "172.17.0.1", // in wsl we have to use wsl eth0 interface address or wsl ipv6 address or use localhost for address that it resolve to ipv6 address
               "port_value": 8001
             }
           }
@@ -103,12 +103,46 @@ Create [eds.conf](envoy/eds.conf) file with the following content:
 }
 ```
 
-[https://askubuntu.com/questions/430853/how-do-i-find-my-internal-ip-address](https://askubuntu.com/questions/430853/how-do-i-find-my-internal-ip-address)
+[Can't connect to docker container running inside WSL2](https://github.com/microsoft/WSL/issues/4983#issuecomment-602487077)
 
-we can use `hostname -I` to get host address for our docker container and inner our envoy configuration we can't use `host.docker.internal` because it just work in context docker like `dockerfile` and `docker-compose` but we can't use it inner our envoy configuration and we should use host address in order to access other docker container such as access to `containersol/hello-world` container on expose port `8001`. we can test it after get host ip with `hostname -I`
+[Accessing resources with IPv4 Networks](https://shipyard.run/docs/wsl2/)
+
+[can't access container in WSL from Windows](https://github.com/microsoft/WSL/issues/4170#issuecomment-502818570)
+
+[How to access docker containers on wsl 2](https://stackoverflow.com/questions/62753270/how-to-access-docker-containers-on-wsl-2)
+
+[How to access host ip and port?](https://github.com/Microsoft/WSL/issues/1032#issuecomment-535764958)
+
+[Accessing Linux networking apps from Windows (localhost)](https://docs.microsoft.com/en-us/windows/wsl/compare-versions#accessing-linux-networking-apps-from-windows-localhost)
+
+There is currently a bug with WSL2 and Docker bindings for localhost when accessed via the IPv4 IP address `127.0.0.1`. This means that services running in Docker on WSL2 can not be accessed via the ip address `127.0.0.1` from outside the WLS2 container (the hostname localhost functions correctly). In order for magic URLs to function on WSL2, requires IPv6 networking to be enabled. IPv6 is not affected by the Docker bind bug and resources can be accessed both internally and externally.
+
+on windows this command shows that our containers ip and ports in windows listen on `ipv6 addresses`
+
+``` powershell
+ netstat -a
+
+ TCP    [::1]:8000             DESKTOP-5OAUHA4:0      LISTENING
+ TCP    [::1]:8001             DESKTOP-5OAUHA4:0      LISTENING
+ TCP    [::1]:8002             DESKTOP-5OAUHA4:0      LISTENING
+ TCP    [::1]:9000             DESKTOP-5OAUHA4:0      LISTENING
+```
+
+`WSL2` only binds to `ipv6` localhost ([::1]) and not ipv4 localhost (127.0.0.1).
+I resorted to using the ipv6 localhost url, `http://[::1]:8001` and it just worked.
+
+we can use `ip addr | grep eth0` to get host address for our docker container and inner our envoy configuration we can't use `host.docker.internal` because it just work in context docker like `dockerfile` and `docker-compose` but we can't use it inner our envoy configuration and we should use host address in order to access other docker container such as access to `containersol/hello-world` container on expose port `8001`. we can test it after get host ip with `ip addr | grep eth0`
 
 ``` bash
-curl 172.17.0.1:8001
+curl 172.27.211.139:8001
+
+or
+
+curl localhost:8001
+
+or
+
+curl [::1]:8001
 ```
 
 ### Start Envoy
@@ -178,7 +212,7 @@ Replace the configuration with the following to add a new endpoint to the cluste
         "endpoint": {
           "address": {
             "socket_address": {
-              "address": "172.17.0.1",
+              "address": "172.17.0.1", // or localhost or ipv6 local address [::1]
               "port_value": 8001
             }
           }
@@ -188,7 +222,7 @@ Replace the configuration with the following to add a new endpoint to the cluste
         "endpoint": {
           "address": {
             "socket_address": {
-              "address": "172.17.0.1",
+              "address": "[::1]", // or localhost or host address with ip addr | grep eth0
               "port_value": 8002
             }
           }
@@ -241,7 +275,7 @@ bellow json file actually is a [DiscoveryResponse](https://www.envoyproxy.io/doc
 {
   "version_info": "0",   
   "resources": [{
-      "@type": "type.googleapis.com/envoy.api.v2.Cluster", #https://www.envoyproxy.io/docs/envoy/latest/api-docs/xds_protocol#resource-types
+      "@type": "type.googleapis.com/envoy.api.v2.Cluster", //https://www.envoyproxy.io/docs/envoy/latest/api-docs/xds_protocol#resource-types
       "name": "targetCluster",
             "connect_timeout": "0.25s",
             "lb_policy": "ROUND_ROBIN",
@@ -399,7 +433,7 @@ You also need to create the eds_cluster_config file for this new cluster. Create
         "endpoint": {
           "address": {
             "socket_address": {
-              "address": "172.17.0.1",
+              "address": "172.17.0.1", // or localhost or [::1]
               "port_value": 8003
             }
           }
@@ -409,7 +443,7 @@ You also need to create the eds_cluster_config file for this new cluster. Create
         "endpoint": {
           "address": {
             "socket_address": {
-              "address": "172.17.0.1",
+              "address": "[::1]", // or localhost or host address with ip addr | grep eth0
               "port_value": 8004
             }
           }
