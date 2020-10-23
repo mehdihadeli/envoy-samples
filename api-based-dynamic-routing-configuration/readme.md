@@ -133,8 +133,35 @@ pip install -r requirements.txt
 
 python main.py
 ```
+[Can't connect to docker container running inside WSL2](https://github.com/microsoft/WSL/issues/4983#issuecomment-602487077)
 
-we can use `hostname -I` to get host address for our docker container and inner our envoy configuration we can't use `host.docker.internal` because it just work in context docker like `dockerfile` and `docker-compose` but we can't use it inner our envoy configuration and we should use host address in order to access other docker container such as access to `containersol/hello-world` container on expose port `8001`. we can test it after get host ip with `hostname -I`
+[Accessing resources with IPv4 Networks](https://shipyard.run/docs/wsl2/)
+
+[can't access container in WSL from Windows](https://github.com/microsoft/WSL/issues/4170#issuecomment-502818570)
+
+[How to access docker containers on wsl 2](https://stackoverflow.com/questions/62753270/how-to-access-docker-containers-on-wsl-2)
+
+[How to access host ip and port?](https://github.com/Microsoft/WSL/issues/1032#issuecomment-535764958)
+
+[Accessing Linux networking apps from Windows (localhost)](https://docs.microsoft.com/en-us/windows/wsl/compare-versions#accessing-linux-networking-apps-from-windows-localhost)
+
+There is currently a bug with WSL2 and Docker bindings for localhost when accessed via the IPv4 IP address `127.0.0.1`. This means that services running in Docker on WSL2 can not be accessed via the ip address `127.0.0.1` from outside the WLS2 container (the hostname localhost functions correctly). In order for magic URLs to function on WSL2, requires IPv6 networking to be enabled. IPv6 is not affected by the Docker bind bug and resources can be accessed both internally and externally.
+
+on windows this command shows that our containers ip and ports in windows listen on `ipv6 addresses`
+
+``` powershell
+ netstat -a
+
+ TCP    [::1]:8000             DESKTOP-5OAUHA4:0      LISTENING
+ TCP    [::1]:8001             DESKTOP-5OAUHA4:0      LISTENING
+ TCP    [::1]:8002             DESKTOP-5OAUHA4:0      LISTENING
+ TCP    [::1]:9000             DESKTOP-5OAUHA4:0      LISTENING
+```
+
+`WSL2` only binds to `ipv6` localhost ([::1]) and not ipv4 localhost (127.0.0.1).
+I resorted to using the ipv6 localhost url, `http://[::1]:8001` and it just worked.
+
+we can use `ip addr | grep eth0` to get host address for our docker container and inner our envoy configuration we can't use `host.docker.internal` because it just work in context docker like `dockerfile` and `docker-compose` but we can't use it inner our envoy configuration and we should use host address in order to access other docker container such as access to `containersol/hello-world` container on expose port `8001`. we can test it after get host ip with `ip addr | grep eth0`
 
 ``` bash
 curl 172.27.211.139:8001
@@ -171,7 +198,7 @@ then on the envoy proxy stdout, something like:
 [2018-04-29 22:59:10.331][157796][debug][pool] source/common/http/http1/conn_pool.cc:115] [C2] client disconnected
 ```
 
-Basically, this shows no updates were recieved from the endpoint
+Basically, this shows no updates were received from the endpoint
 
 You can verify that envoy doesn't know anything about this endpoint by attempting to connect through to it (envoy listener):
 
@@ -199,9 +226,9 @@ Since we defined the service as `myservice` in the `envoy_config.yaml`, we can n
 
 ``` json
 curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' -d '{
-  "hosts": [
+  "hosts": [  //This field is deprecated. Set the load_assignment field instead.
     {
-      "ip_address": "172.27.211.139", // we use host address for access to our container
+      "ip_address": "172.27.211.139", // in wsl we have to use wsl eth0 interface address or wsl ipv6 address or use localhost for address that it resolve to ipv6 address
       "port": 8001, //our upstream service
       "tags": {
         "az": "us-central1-a",
@@ -222,9 +249,9 @@ curl -X GET "http://localhost:8080/edsservice/myservice" -H "accept: application
 
 ``` json
 {
-  "hosts": [
+  "hosts": [ //This field is deprecated. Set the load_assignment field instead.
     {
-      "ip_address": "172.27.211.139", 
+      "ip_address": "[::1]", //// in wsl we have to use wsl eth0 interface address or wsl ipv6 address or use localhost for address that it resolve to ipv6 address
       "port": 8001, 
       "tags": {
         "az": "us-central1-a",
@@ -283,7 +310,7 @@ curl -X PUT --header 'Content-Type: application/json' --header 'Accept: applicat
       }
    },
    {
-      "ip_address":"172.27.211.139",
+      "ip_address":"[::1]",
       "port":8002,
       "tags":{
          "az":"us-central1-a",
