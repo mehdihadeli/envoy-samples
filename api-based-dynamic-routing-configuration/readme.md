@@ -161,19 +161,23 @@ on windows this command shows that our containers ip and ports in windows listen
 `WSL2` only binds to `ipv6` localhost ([::1]) and not ipv4 localhost (127.0.0.1).
 I resorted to using the ipv6 localhost url, `http://[::1]:8001` and it just worked.
 
-we can use `ip addr | grep eth0` to get host address for our docker container and inner our envoy configuration we can't use `host.docker.internal` because it just work in context docker like `dockerfile` and `docker-compose` but we can't use it inner our envoy configuration and we should use host address in order to access other docker container such as access to `containersol/hello-world` container on expose port `8001`. we can test it after get host ip with `ip addr | grep eth0`
+
+we can use `ip addr | grep eth0` to get host address for our docker container and inner our envoy configuration we can't use `host.docker.internal` because it just work in context docker like `dockerfile` and `docker-compose` but we can't use it inner our envoy configuration and we should use `host address (eth0 ip)` or `localhost` or `IPV6 localhost address ([::1])` in order to access other docker container such as access to `containersol/hello-world` container on expose port `8001`. we can test it after get host ip with `ip addr | grep eth0`.
 
 ``` bash
-curl 172.27.211.139:8001
+curl 172.27.211.139:8001  # work on wsl and win
 
 or
 
-curl localhost:8001
+curl localhost:8001  # work on wsl and win
 
 or
 
-curl [::1]:8001
-```
+curl [::1]:8001 # work on wsl and win
+
+or 
+
+curl 127.0.0.1:8001 #only work on wsl machine  
 
 ```
 curl http://localhost:8080/
