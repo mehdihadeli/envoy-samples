@@ -165,6 +165,14 @@ we can use `ip addr | grep eth0` to get host address for our docker container an
 
 ``` bash
 curl 172.27.211.139:8001
+
+or
+
+curl localhost:8001
+
+or
+
+curl [::1]:8001
 ```
 
 ```
