@@ -39,6 +39,12 @@ As a bonus, the control plane also launches an [Access Log](https://www.envoypro
 
 ## Setup
 
+### Prerequisites
+- Installing Go in ubuntu with this command:
+
+``` bash
+sudo apt install golang-go
+```
 
 ### Start Control Plane
 
@@ -326,6 +332,7 @@ static_resources:
 You can verify the cluster was dynamically added in by viewing the envoy admin console at ```http://localhost:9000```.  A sample output of that console:
 
 ![images/admin_clusters.png](images/admin_clusters.png)
+
 
 ### Access endpoint thorough proxy
 

@@ -321,7 +321,6 @@ func main() {
 						ClusterSpecifier: &v2route.RouteAction_Cluster{
 							Cluster: clusterName,
 						},
-						PrefixRewrite: "/robots.txt",
 					},
 				},
 			}}}
