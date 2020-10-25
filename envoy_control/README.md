@@ -336,9 +336,7 @@ You can verify the cluster was dynamically added in by viewing the envoy admin c
 
 ### Access endpoint thorough proxy
 
-Now you can use ```curl``` to access the robots.txt file on the upstream host thrrough the proxy.  You're alble to do this now because
-the control plane dynamically configured a cluster, listenr and upstream for you on bootstrap.
-
+we can use `localhost:10000/` to access our upstream through the proxy.  You're able to do this now because the control plane dynamically configured a cluster, listener and upstream for you on bootstrap.
 
 ### Sample output
 
