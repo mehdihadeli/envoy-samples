@@ -11,6 +11,7 @@ exercising the pushed configuration.
 
 * Envoy binary `envoy` available: set `ENVOY` environment variable to the
   location of the binary, or use the default value `/usr/local/bin/envoy`
+* installing go with `sudo apt install golang-go`
 * `go-control-plane` builds successfully
 
 ## Steps

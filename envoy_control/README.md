@@ -14,10 +14,11 @@ specific listener and cluster is trivial:  it merely proxies a request for `http
 
 To run this sample, you need to install golang and Envoy binary itself.
 
+[Access logging Configuration](https://www.envoyproxy.io/docs/envoy/latest/configuration/observability/access_log/usage#config-access-log)
 
-As a bonus, the control plane also launches an [Access Log](https://www.envoyproxy.io/docs/envoy/latest/configuration/access_log) gRPC
-service.  This service will receives access log stats dirctly from the proxy.  Setting up the access log is not the primary focus of 
-this article but I'll describe it in the appendix.
+[Access logging](https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/observability/access_logging.html)
+
+As a bonus, the control plane also launches an [Access Log](https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/observability/access_logging.html) gRPC service.  This service will receives access log stats directly from the proxy. Setting up the access log is not the primary focus of this article but I'll describe it in the appendix.
 
 > Note: much of the code and config i got here is taken from the Envoy [integration test suite](https://github.com/envoyproxy/go-control-plane/tree/master/pkg/test/main)
 

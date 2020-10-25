@@ -54,6 +54,10 @@ In commands used `Makefile` for building process.
 
 [What is a Makefile and how does it work?](https://opensource.com/article/18/8/what-how-makefile)
 
+
+> Installing go with `sudo apt install golang-go`
+
+
 1. Setup existing build:
 
     ```sh
@@ -68,6 +72,11 @@ In commands used `Makefile` for building process.
 
 1. Take a look at the [example server](internal/example/README.md).
 
+
+
+## [End-to-end testing script](./pkg/test/main)
+
+This directory contains a basic end-to-end testing script. The script sets up a configuration cache, stands up a configuration server, and starts up Envoy with the server as either ADS or xDS discovery option. The configuration is periodically refreshed with new routes and new clusters. In parallel, the test sends echo requests one after another through Envoy, exercising the pushed configuration.
 
 ## XDS API versioning
 
