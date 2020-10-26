@@ -145,7 +145,7 @@ func RunAccessLogServer(ctx context.Context, als *myals.AccessLogService, port u
 	if err != nil {
 		log.WithError(err).Fatal("failed to listen")
 	}
-
+	//asl: our access log service in src/accesslogs/accesslog.go
 	accesslog.RegisterAccessLogServiceServer(grpcServer, als)
 	log.WithFields(log.Fields{"port": port}).Info("access log server listening")
 
@@ -220,6 +220,7 @@ func main() {
 
 	srv := xds.NewServer(ctx, config, cb)
 
+	//asl -> our access log
 	//als := &accesslogs.AccessLogService{}
 	als := &myals.AccessLogService{}
 	go RunAccessLogServer(ctx, als, alsPort)

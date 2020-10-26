@@ -514,6 +514,8 @@ $ envoy -c logs.yaml
 
 and then the control plane (which also starts the access_log server)
 
+[accesslog grpc service](src/accesslogs/accesslog.go)
+
 ```
 $ go run src/main.go --onlyLogging
 INFO[0000] Starting control plane 
@@ -522,7 +524,7 @@ INFO[0000] access log server listening                   port=18090
 
 and access the listener on 
 ``` 
-$ curl -vk http://localhost:10000/robots.txt
+$ curl -vk http://localhost:10000/
 ```
 
 you should see access_logs emitted to on the same stdout as before:
