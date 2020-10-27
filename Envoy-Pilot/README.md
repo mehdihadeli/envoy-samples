@@ -69,9 +69,29 @@ Pushing new configuration
 
 [How do I SET the GOPATH environment variable on Ubuntu? What file must I edit?](https://stackoverflow.com/questions/21001387/how-do-i-set-the-gopath-environment-variable-on-ubuntu-what-file-must-i-edit)
 
+[How To Install Go and Set Up a Local Programming Environment on Ubuntu 18.04](https://www.digitalocean.com/community/tutorials/how-to-install-go-and-set-up-a-local-programming-environment-on-ubuntu-18-04)
+
+[EnvironmentVariables](https://help.ubuntu.com/community/EnvironmentVariables)
+
 ``` bash
- CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /go/bin/Envoy-Pilot cmd/server/main.go
+go get -u github.com/golang/dep/cmd/dep
+go get -u github.com/derekparker/delve/cmd/dlv
+mkdir ~/go/src/Envoy-Pilot
+Gopkg.lock ~/go/src/Envoy-Pilot/
+Gopkg.toml ~/go/src/Envoy-Pilot/
+cd ~/go/src/Envoy-Pilot/
+ls -l
+dep ensure -vendor-only
+
+cp -a cmd ~/go/src/Envoy-Pilot/cmd
+rm -rf  ~/go/src/github.com/envoyproxy/go-control-plane/vendor
+CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o ~/go/bin/Envoy-Pilot ~/go/src/Envoy-Pilot/cmd/server/main.go
+
+mkdir -p /go/bin/
+bash ~/go/bin/Envoy-Pilot
 ```
+
+Also we need to create a [.env](cmd/server/.env) file in root our app that use [godotenv package](https://github.com/joho/godotenv)
 
 ## Running Docker Compose
 

@@ -18,8 +18,6 @@ import (
 	consul "github.com/hashicorp/consul/api"
 	"github.com/joho/godotenv"
 
-	"github.com/envoyproxy/go-control-plane/envoy/api/v2"
-
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -66,6 +64,7 @@ func main() {
 	}
 }
 
+//https://github.com/joho/godotenv
 func initEnv() {
 	err := godotenv.Load(constant.ENV_PATH)
 	if err != nil {
