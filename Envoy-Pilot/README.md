@@ -4,7 +4,7 @@
 ![docker pulls](https://img.shields.io/docker/pulls/tak2siva/envoy-pilot)
 
 
-Envoy Pilot or Envoy xDS is a control plane implementation for [Envoy](https://github.com/envoyproxy/envoy) written in Golang and uses Consul for persistence by default. It can also run without Consul by loading configuration from file.
+Envoy Pilot or Envoy xDS is a control plane implementation for [Envoy](https://github.com/envoyproxy/envoy) written in Golang and uses Consul for `persistence` by default. It can also run without Consul by loading configuration from file.
 
 This is an extension of [go-control-plane](https://github.com/envoyproxy/go-control-plane)
 
