@@ -65,6 +65,14 @@ Pushing new configuration
   * If there is a version mismatch for any of `xDS/app-cluster/ride-service/(CDS|LDS|RDS|EDS)/version` then new config `xDS/app-cluster/ride-service/(CDS|LDS|RDS|EDS)/config` will be pushed to subscriber envoy.
   * If update succeed there will be an ACK log for the instance.
 
+## Run Manually
+
+[How do I SET the GOPATH environment variable on Ubuntu? What file must I edit?](https://stackoverflow.com/questions/21001387/how-do-i-set-the-gopath-environment-variable-on-ubuntu-what-file-must-i-edit)
+
+``` bash
+ CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /go/bin/Envoy-Pilot cmd/server/main.go
+```
+
 ## Running Docker Compose
 
 From root directory 
