@@ -39,8 +39,8 @@ services:
       PORT: 8123
       CONTENT: 'this is app --ONE--'
       CODE: 200
-    expose:
-      - 8123
+    ports:
+      - "8123:8123"
     networks:
       - xds-example
   
@@ -50,8 +50,8 @@ services:
       PORT: 8126
       CONTENT: 'this is app --TWO--'
       CODE: 200
-    expose:
-      - 8126
+    ports:
+      - "8126:8126"
     networks:
       - xds-example      
 
