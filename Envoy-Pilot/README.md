@@ -33,7 +33,6 @@ xDS Server will be exposed on port 7777
 Run Envoy Proxy with the following configurations or use `--service-node` && `--service-cluster`. they do same things.
 
 [core.Node](https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/core/base.proto#core-node)
-
 ``` yaml
 node:
   id: ride-service-replica-2
@@ -50,8 +49,7 @@ or we can use node element in our envoy configs instead of --service-cluster, --
 envoy -c ./envoy-config.yaml -l debug 
 ```
 
-our envoy config
-
+Our envoy config:
 ``` yaml
 admin:
   access_log_path: /tmp/admin_access.log
@@ -76,7 +74,8 @@ static_resources:
     lb_policy: ROUND_ROBIN
     dns_refresh_rate: 5s
     http2_protocol_options: {}
-    hosts: [{ socket_address: { address: "localhost", port_value: 7777 }}]
+    hosts: [{ socket_address: { address: "xds-server", port_value: 7777 }}] #if we use docker compose or docker container for our envoy container
+    #hosts: [{ socket_address: { address: "localhost", port_value: 7777 }}]   #if we use envoy binary directly
 ```
 
 [Aggregated xDS (“ADS”)](https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/operations/dynamic_configuration#aggregated-xds-ads)
@@ -84,12 +83,12 @@ static_resources:
 
 [Aggregated Discovery Service](https://www.envoyproxy.io/docs/envoy/latest/configuration/overview/xds_api#aggregated-discovery-service)
 
-some init scripts
+Some init scripts:
 
 ``` bash
 consul kv import @config/values.json
 
-Consul KV Export
+consul kv export
 
 chmod +x config/wait-for-command.sh; sh config/wait-for-command.sh -t 30 -c \"curl -f http://localhost:8500/v1/status/leader\" && CONSUL_HTTP_ADDR=localhost:8500 consul kv import @config/values.json
 
@@ -119,7 +118,7 @@ For CDS add KV
         "lb_policy": "RANDOM",
         "hosts": [{
           "socket_address": {
-           "address": "localhost",
+           "address": "172.21.211.76",
            "port_value": 8123
           }
         }]
@@ -199,17 +198,18 @@ For LSD add KV
 
 [EnvironmentVariables](https://help.ubuntu.com/community/EnvironmentVariables)
 
-to get docker host address we can use 
+To get docker host address we can use:
 
 ```
 ip addr | grep eth0
 ```
 
-run consul with docker:
+1.  Run consul with docker:
 
 ``` bash
 docker-compose -f docker-compose.consul.yaml up
 ```
+2. Run our xds-server with following commands:
 
 ``` bash
 go get -u github.com/golang/dep/cmd/dep
@@ -231,9 +231,9 @@ bash ~/go/bin/Envoy-Pilot
 
 Also we need to create a [.env](cmd/server/.env) file in root our app that use [godotenv package](https://github.com/joho/godotenv)
 
-then we should run our apps container in this [docker-compose.apps.yaml](./docker-compose.apps.yaml) file on `8123`, `8126` ports.
+3. we should `run our apps container` in this docker compose file [docker-compose.apps.yaml](./docker-compose.apps.yaml) on `8123`, `8126` ports.
 
-Run Envoy Proxy with the following configurations or use `--service-node` && `--service-cluster`. they do same things.
+4. Run Envoy Proxy with the following configurations or use `--service-node` && `--service-cluster`. they do same things.
 
 [core.Node](https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/core/base.proto#core-node)
 
@@ -244,11 +244,11 @@ node:
 ```
 
 ``` bash
-envoy -c ./envoy-config.yaml -l info --service-cluster ride-service --service-node ride-service-replica-2
+envoy -c ./envoy-config.yaml -l debug --service-cluster ride-service --service-node ride-service-replica-2
 
 ## or we can use node element in our envoy configs instead of --service-cluster, --service-node
 
-envoy -c ./envoy-config.yaml -l info 
+envoy -c ./envoy-config.yaml -l debug 
 ```
 
 
@@ -257,8 +257,15 @@ envoy -c ./envoy-config.yaml -l info
 From root directory 
 ```
 docker network create envoy-pilot_xds-demo
+docker-compose -f docker-compose.apps.yaml up
 docker-compose -f docker-compose.consul.yaml up
-docker-compose -f docker-compose.server.yaml up --build
+docker-compose -f docker-compose.envoy.yaml up
+docker-compose -f docker-compose.server.yaml up 
+
+or
+docker network create envoy-pilot_xds-demo
+docker-compose -f docker-compose.apps.yaml up
+docker-compose -f docker-compose.server-envoy.yaml up
 ```
 
 ## Running test
@@ -294,7 +301,7 @@ Install using the [Helm Chart for Envoy-Pilot](https://github.com/tak2siva/Envoy
 ## Debugging
 
 * xDS-Server is running on port 7777
-* A http server is running on port 9090 for debugging
+* A http server is running on port `9090` for `debugging`
 
 `localhost:9090/dump/KEY_TEMPLATE` will give a json dump of proto mapping
 
@@ -304,6 +311,48 @@ Install using the [Helm Chart for Envoy-Pilot](https://github.com/tak2siva/Envoy
   ```
 
 * To get list of subcsribers hit `localhost:9090/dump/subscribers/`
+
+``` json
+{
+	"bucpea4ii77etp08jf5g": {
+		"Guid": "bucpea4ii77etp08jf5g",
+		"Cluster": "ride-service",
+		"Node": "ride-service-replica-2",
+		"UpdateSuccess": 0,
+		"UpdateFailures": 0,
+		"LastUpdatedVersion": "",
+		"LastUpdatedTimestamp": "0001-01-01T00:00:00Z",
+		"SubscribedTo": "ADS",
+		"AdsList": {
+			"CDS": {
+				"Guid": "bucpea4ii77etp08jf60",
+				"Cluster": "ride-service",
+				"Node": "ride-service-replica-2",
+				"UpdateSuccess": 0,
+				"UpdateFailures": 0,
+				"LastUpdatedVersion": "4.0",
+				"LastUpdatedTimestamp": "0001-01-01T00:00:00Z",
+				"SubscribedTo": "CDS",
+				"AdsList": null,
+				"IpAddress": "172.18.0.10:41004"
+			},
+			"LDS": {
+				"Guid": "bucpea4ii77etp08jf6g",
+				"Cluster": "ride-service",
+				"Node": "ride-service-replica-2",
+				"UpdateSuccess": 0,
+				"UpdateFailures": 0,
+				"LastUpdatedVersion": "3.0",
+				"LastUpdatedTimestamp": "0001-01-01T00:00:00Z",
+				"SubscribedTo": "LDS",
+				"AdsList": null,
+				"IpAddress": "172.18.0.10:41004"
+			}
+		},
+		"IpAddress": "172.18.0.10:41004"
+	}
+}
+```
 
 
 ## Prometheus metrics
