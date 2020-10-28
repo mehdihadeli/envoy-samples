@@ -1,5 +1,8 @@
 This example is using Envoy-Pilot xDS Server (https://github.com/tak2siva/Envoy-Pilot)
 
+This sample use Consul and read envoy dynamic configuration from consul key/value data storage. it use grpc connection and read its data from our consul in our grpc service.
+
+
 This docker compose setup contains:
 
     - Envoy (port: 10000)
