@@ -11,7 +11,7 @@ services:
     security_opt:
       - seccomp:unconfined
     volumes:
-      - $PWD/env_values.txt:/.env
+      - $PWD/cmd/server/.env:/.env
     expose:
       - 7777
       - 2345

@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+    app1:
+      image: tak2siva/tiny-mock-server
+      environment:
+        PORT: 8123
+        CONTENT: 'this is app --ONE--'
+        CODE: 200
+      ports:
+        - "8123:8123"
+      networks:
+      - envoy-pilot_xds-demo
+    app2:
+      image: tak2siva/tiny-mock-server
+      environment:
+        PORT: 8126
+        CONTENT: 'this is app --TWO--'
+        CODE: 200
+      ports:
+        - "8126:8126"
+      networks:
+      - envoy-pilot_xds-demo
+
+networks:
+  envoy-pilot_xds-demo:
+    external: true

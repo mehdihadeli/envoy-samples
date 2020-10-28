@@ -1,5 +1,2 @@
-CONSUL_PATH="http://consul-server-bootstrap:8500"
-CONSUL_PREFIX="xDS"
-FILE_MODE=false
-FOLDER_PATH="/file_mode_config/"
-POLL_INTERVAL="10s"
+CONSUL_PATH="http://consul-server-bootstrap:8500" #we should use consul container address because and we can't use localhost because we should access consul container address in another container, here xds-server container
+CONSUL_PREFIX=xDS

@@ -1,0 +1,32 @@
+[
+	{
+			"key": "xDS/app-cluster/ride-service/CDS/config",
+			"flags": 0,
+			"value": "WwoJCXsKCQkJIm5hbWUiOiAiYXBwX3NlcnZpY2UiLAoJCQkiY29ubmVjdF90aW1lb3V0IjogIjAuMjVzIiwKCQkJInR5cGUiOiAiU1RSSUNUX0ROUyIsCgkJCSJsYl9wb2xpY3kiOiAiUk9VTkRfUk9CSU4iLAoJCQkiaG9zdHMiIDogWyB7ICJzb2NrZXRfYWRkcmVzcyIgOiB7ICJhZGRyZXNzIiA6ICJsb2NhbGhvc3QiLCAicG9ydF92YWx1ZSIgOiA4MTIzIH19XQoJCX0KCV0="
+	},
+	{
+			"key": "xDS/app-cluster/ride-service/CDS/version",
+			"flags": 0,
+			"value": "Mi4w"
+	},
+	{
+			"key": "xDS/app-cluster/ride-service/LDS/config",
+			"flags": 0,
+			"value": "WwoJCQl7CgkJCQkibmFtZSI6ICJsaXN0ZW5lcl8wIiwKCQkJCSJhZGRyZXNzIjogewoJCQkJCSJzb2NrZXRfYWRkcmVzcyI6IHsKCQkJCQkJImFkZHJlc3MiOiAiMC4wLjAuMCIsCgkJCQkJCSJwb3J0X3ZhbHVlIjogMTAwMDAKCQkJCQl9CgkJCQl9LAoJCQkJImZpbHRlcl9jaGFpbnMiOiBbCgkJCQkJewoJCQkJCQkiZmlsdGVycyI6IFsKCQkJCQkJCXsKCQkJCQkJCQkibmFtZSI6ICJlbnZveS5odHRwX2Nvbm5lY3Rpb25fbWFuYWdlciIsCgkJCQkJCQkJImNvbmZpZyI6IHsKCQkJCQkJCQkJInN0YXRfcHJlZml4IjogImluZ3Jlc3NfaHR0cCIsCgkJCQkJCQkJCSJjb2RlY190eXBlIjogIkFVVE8iLAoJCQkJCQkJCQkicm91dGVfY29uZmlnIjogewoJCQkJCQkJCQkJIm5hbWUiOiAibG9jYWxfcm91dGUiLAoJCQkJCQkJCQkJInZpcnR1YWxfaG9zdHMiOiBbCgkJCQkJCQkJCQkJewoJCQkJCQkJCQkJCQkibmFtZSI6ICJsb2NhbF9zZXJ2aWNlIiwKCQkJCQkJCQkJCQkJImRvbWFpbnMiOiBbCgkJCQkJCQkJCQkJCQkiKiIKCQkJCQkJCQkJCQkJXSwKCQkJCQkJCQkJCQkJInJvdXRlcyI6IFsKCQkJCQkJCQkJCQkJCXsKCQkJCQkJCQkJCQkJCQkibWF0Y2giOiB7CgkJCQkJCQkJCQkJCQkJCSJwcmVmaXgiOiAiLyIKCQkJCQkJCQkJCQkJCQl9LAoJCQkJCQkJCQkJCQkJCSJyb3V0ZSI6IHsKCQkJCQkJCQkJCQkJCQkJImNsdXN0ZXIiOiAiYXBwX3NlcnZpY2UiCgkJCQkJCQkJCQkJCQkJfQoJCQkJCQkJCQkJCQkJfQoJCQkJCQkJCQkJCQldCgkJCQkJCQkJCQkJfQoJCQkJCQkJCQkJXQoJCQkJCQkJCQl9LAoJCQkJCQkJCQkiaHR0cF9maWx0ZXJzIjogWwoJCQkJCQkJCQkJewoJCQkJCQkJCQkJCSJuYW1lIjogImVudm95LnJvdXRlciIKCQkJCQkJCQkJCX0KCQkJCQkJCQkJXQoJCQkJCQkJCX0KCQkJCQkJCX0KCQkJCQkJXQoJCQkJCX0KCQkJCV0KCQkJfQoJCV0="
+	},
+	{
+			"key": "xDS/app-cluster/ride-service/LDS/nodes/adstest-node_40/meta",
+			"flags": 0,
+			"value": "eyJJZCI6NDAsIkNsdXN0ZXIiOiJhZHN0ZXN0LWNsdXN0ZXIiLCJOb2RlIjoiYWRzdGVzdC1ub2RlIiwiVXBkYXRlU3VjY2VzcyI6MCwiVXBkYXRlRmFpbHVyZXMiOjAsIkxhc3RVcGRhdGVkVmVyc2lvbiI6IjEuMCIsIkxhc3RVcGRhdGVkVGltZXN0YW1wIjoiMDAwMS0wMS0wMVQwMDowMDowMFoiLCJTdWJzY3JpYmVkVG8iOiJMRFMiLCJBZHNMaXN0IjpudWxsfQ=="
+	},
+	{
+			"key": "xDS/app-cluster/ride-service/LDS/version",
+			"flags": 0,
+			"value": "Mi4w"
+	},
+	{
+			"key": "xDS/envoySubscriberSequence",
+			"flags": 0,
+			"value": "MQ=="
+	}
+]

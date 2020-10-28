@@ -23,10 +23,5 @@
 		"key": "xDS/app-cluster/adstest-cluster/LDS/version",
 		"flags": 0,
 		"value": "MS4w"
-	},
-	{
-		"key": "xDS/envoySubscriberSequence",
-		"flags": 0,
-		"value": "NDA="
 	}
 ]
