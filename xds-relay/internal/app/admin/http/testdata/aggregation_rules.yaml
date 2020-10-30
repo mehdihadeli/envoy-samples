@@ -1,0 +1,64 @@
+fragments:
+  - rules:
+      - match:
+          request_type_match:
+            types:
+              - "type.googleapis.com/envoy.api.v2.Listener"
+              - "type.googleapis.com/envoy.api.v2.Cluster"
+              - "type.googleapis.com/envoy.api.v2.Route"
+              - "type.googleapis.com/envoy.api.v2.Endpoint"
+              - "type.googleapis.com/envoy.config.listener.v3.Listener"
+              - "type.googleapis.com/envoy.config.cluster.v3.Cluster"
+        result:
+          request_node_fragment:
+            cluster_action:
+              regex_action: { pattern: "^(.*)-.*$", replace: "$1" }
+  - rules:
+      - match:
+          request_type_match:
+            types:
+              - "type.googleapis.com/envoy.api.v2.Listener"
+        result:
+          string_fragment: "lds"
+      - match:
+          request_type_match:
+            types:
+              - "type.googleapis.com/envoy.api.v2.Cluster"
+        result:
+          string_fragment: "cds"
+      - match:
+          request_type_match:
+            types:
+              - "type.googleapis.com/envoy.api.v2.Route"
+        result:
+          string_fragment: "rds"
+      - match:
+          request_type_match:
+            types:
+              - "type.googleapis.com/envoy.api.v2.ClusterLoadAssignment"
+        result:
+          string_fragment: "eds"
+      - match:
+          request_type_match:
+            types:
+              - "type.googleapis.com/envoy.config.listener.v3.Listener"
+        result:
+          string_fragment: "lds"
+      - match:
+          request_type_match:
+            types:
+              - "type.googleapis.com/envoy.config.cluster.v3.Cluster"
+        result:
+          string_fragment: "cds"
+      - match:
+          request_type_match:
+            types:
+              - "type.googleapis.com/envoy.config.route.v3.RouteConfiguration"
+        result:
+          string_fragment: "rdsv3"
+      - match:
+          request_type_match:
+            types:
+              - "type.googleapis.com/envoy.config.endpoint.v3.ClusterLoadAssignment"
+        result:
+          string_fragment: "edsv3"

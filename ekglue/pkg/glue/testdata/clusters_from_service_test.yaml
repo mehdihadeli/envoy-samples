@@ -1,0 +1,42 @@
+apiVersion: v1alpha
+cluster_config:
+    base:
+        connect_timeout: 1s
+    overrides:
+        - match:
+              - port_name: http2
+          override:
+              http2_protocol_options: {}
+        - match:
+              - cluster_name: foo:bar:http2
+          override:
+              lb_policy: RANDOM
+              connect_timeout: 2s
+        - match:
+              - cluster_name: foo:bar:http2
+          override:
+              health_checks:
+                  - timeout: 1s
+                    interval: 10s
+                    healthy_threshold: 1
+                    unhealthy_threshold: 2
+                    http_health_check:
+                        host: "test"
+                        path: "/healthz"
+                        codec_client_type: HTTP2
+        - match:
+              - cluster_name: foo:eds:http
+          override:
+              type: EDS
+              eds_cluster_config:
+                  eds_config:
+                      api_config_source:
+                          api_type: GRPC
+                          transport_api_version: V2
+                          grpc_services:
+                              - envoy_grpc:
+                                    cluster_name: xds
+        - match:
+              - cluster_name: foo:baz:http
+              - cluster_name: foo:baz:https
+          suppress: true

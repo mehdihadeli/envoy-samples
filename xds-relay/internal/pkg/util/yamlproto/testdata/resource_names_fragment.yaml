@@ -1,0 +1,6 @@
+resource_names_fragment:
+  element: 0
+  action:
+    regex_action:
+      pattern: "some_regex"
+      replace: "a_replacement"

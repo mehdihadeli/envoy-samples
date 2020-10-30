@@ -1,0 +1,27 @@
+{{ if .Values.client }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: client-config
+data:
+  xds_bootstrap.json: |
+    {
+      "xds_servers": [
+        {
+          "server_uri": "xds-server.default.svc.cluster.local:18000",
+          "channel_creds": [
+              {
+                  "type": "insecure"
+              }
+          ]
+        }
+      ],
+      "node": {
+        "id": "any_value_we_dont_evaluate_it",
+        "locality": {
+          "zone": "dataline_dc",
+          "region": "tdb_hardcoded"
+        }
+      }
+    }
+{{ end }}

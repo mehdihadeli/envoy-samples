@@ -1,0 +1,5 @@
+vendor
+consul-envoy-xds
+application.yml
+out/
+.idea/

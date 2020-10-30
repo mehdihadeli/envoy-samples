@@ -1,0 +1,114 @@
+node:
+    id: try-0
+    cluster: try
+    locality:
+        region: earth
+        zone: localdomain
+        sub_zone: localhost
+cluster_manager:
+    local_cluster_name: self
+admin:
+    access_log_path: /dev/null
+    address:
+        socket_address:
+            address: 127.0.0.1
+            port_value: 9901
+static_resources:
+    listeners:
+        - name: test
+          address:
+              socket_address:
+                  protocol: TCP
+                  address: 127.0.0.1
+                  port_value: 10000
+          filter_chains:
+              - filters:
+                    - name: envoy.http_connection_manager
+                      typed_config:
+                          "@type": type.googleapis.com/envoy.config.filter.network.http_connection_manager.v2.HttpConnectionManager
+                          stat_prefix: test
+                          route_config:
+                              virtual_hosts:
+                                  - name: test
+                                    domains: ["*"]
+                                    routes:
+                                        - match: { prefix: "/ping" }
+                                          direct_response:
+                                              status: 200
+                                              body:
+                                                  inline_string: "Hello from Envoy"
+                                        - match: { prefix: "/proxy/" }
+                                          route:
+                                              cluster: "foo"
+                                              prefix_rewrite: "/"
+                              validate_clusters: true
+                          http_filters:
+                              - name: envoy.router
+    clusters:
+        - name: self
+          connect_timeout: 1s
+          type: STATIC
+          load_assignment:
+              cluster_name: self
+              endpoints:
+                  - lb_endpoints:
+                        - endpoint:
+                              address:
+                                  socket_address:
+                                      address: 127.0.0.1
+                                      port_value: 10000
+                    locality:
+                        region: earth
+                        zone: localdomain
+                        sub_zone: localhost
+                  - lb_endpoints:
+                        - endpoint:
+                              address:
+                                  socket_address:
+                                      address: 127.0.0.1
+                                      port_value: 10000
+                    locality:
+                        region: earth
+                        zone: afardomain
+                        sub_zone: afarhost
+        - name: cds
+          connect_timeout: 1s
+          type: STATIC
+          lb_policy: RANDOM
+          http2_protocol_options: {}
+          upstream_connection_options:
+              tcp_keepalive: {}
+          load_assignment:
+              cluster_name: cds
+              endpoints:
+                  - lb_endpoints:
+                        - endpoint:
+                              address:
+                                  socket_address:
+                                      address: 127.0.0.1
+                                      port_value: 9000
+        - name: foo
+          connect_timeout: 1s
+          type: EDS
+          common_lb_config:
+              zone_aware_lb_config:
+                  routing_enabled:
+                      value: 90.0
+                  min_cluster_size: 1
+          eds_cluster_config:
+              eds_config:
+                  api_config_source:
+                      api_type: GRPC
+                      transport_api_version: V2
+                      grpc_services:
+                          envoy_grpc:
+                              cluster_name: cds
+dynamic_resources:
+    cds_config:
+        resource_api_version: V2
+        api_config_source:
+            api_type: GRPC
+            transport_api_version: V2
+            grpc_services:
+                envoy_grpc:
+                    cluster_name: cds

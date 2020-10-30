@@ -1,0 +1,51 @@
+node:
+  id: default-node
+  cluster: default-cluster
+  locality:
+    zone: default-zone
+static_resources:
+  clusters:
+  - name: tbn-xds
+    type: LOGICAL_DNS
+    connect_timeout:
+      seconds: '30'
+    lb_policy: ROUND_ROBIN
+    hosts:
+    - socket_address:
+        protocol: TCP
+        address: 127.0.0.1
+        port_value: '50000'
+    http2_protocol_options:
+      max_concurrent_streams: 10
+    upstream_connection_options:
+      tcp_keepalive:
+        keepalive_probes:
+          value: 3
+        keepalive_time:
+          value: 30
+        keepalive_interval:
+          value: 15
+dynamic_resources:
+  lds_config:
+    api_config_source:
+      api_type: GRPC
+      grpc_services:
+      - envoy_grpc:
+          cluster_name: tbn-xds
+      refresh_delay:
+        seconds: 10
+  cds_config:
+    api_config_source:
+      api_type: GRPC
+      grpc_services:
+      - envoy_grpc:
+          cluster_name: tbn-xds
+      refresh_delay:
+        seconds: 10
+admin:
+  access_log_path: "/dev/stdout"
+  address:
+    socket_address:
+      protocol: TCP
+      address: 0.0.0.0
+      port_value: '9999'
