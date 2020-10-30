@@ -1,0 +1,10 @@
+- cluster: example-cluster-1
+  instances:
+    - host: 172.27.71.209
+      port: 8002
+    - host: 172.27.71.209
+      port: 8001
+- cluster: example-cluster-2
+  instances:
+    - host: 172.27.71.209
+      port: 8002

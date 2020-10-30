@@ -1,0 +1,117 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: hello-world1
+spec:
+  template:
+    metadata:
+      labels:
+        run: hello-world1
+        # This label indicates the cluster name, and that it should be collected by Rotor.
+        # It can be customized with `ROTOR_KUBERNETES_CLUSTER_LABEL`
+        tbn_cluster: cluster1
+          # This is the stage label, set to prod in order to apply to the release
+          # workflow.
+        stage: prod
+        # This is the version label set to a relevant item.
+        version: 1
+    spec:
+      containers:
+      - image: containersol/hello-world
+        imagePullPolicy: Always
+        name: hello-world1
+        ports:
+          - containerPort: 8001
+            # This is the where you name your port, which should match the value
+            # of `ROTOR_KUBERNETES_PORT_NAME`
+            name: http
+            protocol: TCP
+---
+
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: hello-world2
+spec:
+  template:
+    metadata:
+      labels:
+        run: hello-world2
+        # This label indicates the cluster name, and that it should be collected by Rotor.
+        # It can be customized with `ROTOR_KUBERNETES_CLUSTER_LABEL`
+        tbn_cluster: cluster1
+          # This is the stage label, set to prod in order to apply to the release
+          # workflow.
+        stage: prod
+        # This is the version label set to a relevant item.
+        version: 1
+    spec:
+      containers:
+      - image: containersol/hello-world
+        imagePullPolicy: Always
+        name: hello-world2
+        ports:
+          - containerPort: 8002
+            # This is the where you name your port, which should match the value
+            # of `ROTOR_KUBERNETES_PORT_NAME`
+            name: http
+            protocol: TCP
+
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: hello-world3
+spec:
+  template:
+    metadata:
+      labels:
+        run: hello-world3
+        # This label indicates the cluster name, and that it should be collected by Rotor.
+        # It can be customized with `ROTOR_KUBERNETES_CLUSTER_LABEL`
+        tbn_cluster: cluster2
+          # This is the stage label, set to prod in order to apply to the release
+          # workflow.
+        stage: prod
+        # This is the version label set to a relevant item.
+        version: 1
+    spec:
+      containers:
+      - image: containersol/hello-world
+        imagePullPolicy: Always
+        name: hello-world3
+        ports:
+          - containerPort: 8003
+            # This is the where you name your port, which should match the value
+            # of `ROTOR_KUBERNETES_PORT_NAME`
+            name: http
+            protocol: TCP
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: hello-world4
+spec:
+  template:
+    metadata:
+      labels:
+        run: hello-world4
+        # This label indicates the cluster name, and that it should be collected by Rotor.
+        # It can be customized with `ROTOR_KUBERNETES_CLUSTER_LABEL`
+        tbn_cluster: cluster2
+          # This is the stage label, set to prod in order to apply to the release
+          # workflow.
+        stage: prod
+        # This is the version label set to a relevant item.
+        version: 1
+    spec:
+      containers:
+      - image: containersol/hello-world
+        imagePullPolicy: Always
+        name: hello-world4
+        ports:
+          - containerPort: 8004
+            # This is the where you name your port, which should match the value
+            # of `ROTOR_KUBERNETES_PORT_NAME`
+            name: http
+            protocol: TCP

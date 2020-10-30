@@ -1,0 +1,28 @@
+version: "2"
+services:
+  envoy:
+    image: turbinelabs/envoy-simple:0.18.0
+    ports:
+      - 80:80
+      - 9999:9999
+    environment:
+      - ENVOY_XDS_HOST=172.27.71.209
+      - PORT=80:80
+      - PORT=9999:9999
+      - ENVOY_ARGS=-l trace
+
+  rotor:
+    image: turbinelabs/rotor:0.18.0
+    ports:
+      - 50000:50000
+    environment:
+      - ROTOR_CONSOLE_LEVEL=debug
+      - ROTOR_CMD=file
+      - ROTOR_FILE_FORMAT=yaml
+      - ROTOR_FILE_FILENAME=/data/clusters.yml
+      - ROTOR_XDS_RESOLVE_DNS=true
+      - ROTOR_XDS_STATIC_RESOURCES_FILENAME=/data/static_resources.yml
+    volumes:
+      - ./:/data
+      
+      
