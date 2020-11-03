@@ -39,12 +39,10 @@ func TestPushToEnvoyWhenConsulWatchTriggers(t *testing.T) {
 	_, port, _ := net.SplitHostPort(consulSvr.HTTPAddr)
 	os.Setenv("CONSUL_CLIENT_PORT", port)
 	defer os.Unsetenv("CONSUL_CLIENT_PORT")
-	os.Setenv("WATCHED_SERVICE", "testSvc1,testSvc2")
+	os.Setenv("WATCHED_SERVICE", "hello")
 	defer os.Unsetenv("WATCHED_SERVICE")
-	os.Setenv("TESTSVC1_WHITELISTED_ROUTES", "/foo,%regex:/bar")
-	defer os.Unsetenv("TESTSVC1_WHITELISTED_ROUTES")
-	os.Setenv("TESTSVC2_WHITELISTED_ROUTES", "%regex:/hoo,/car")
-	defer os.Unsetenv("TESTSVC2_WHITELISTED_ROUTES")
+	os.Setenv("hello_WHITELISTED_ROUTES", "/")
+	defer os.Unsetenv("hello_WHITELISTED_ROUTES")
 
 	go app.Start()
 	defer app.Stop()
@@ -67,21 +65,13 @@ func TestPushToEnvoyWhenConsulWatchTriggers(t *testing.T) {
 		}
 	}()
 
-	testSvc1 := startTestSvc(consulClient, "testSvc1")
+	testSvc1 := startTestSvc(consulClient, "hello")
 	defer testSvc1.Close()
 
-	testSvc2 := startTestSvc(consulClient, "testSvc2")
-	defer testSvc2.Close()
-
-	assertCluster(t, &messages, "testSvc1")
-	assertCLA(t, &messages, "testSvc1", testSvc1.Listener.Addr().(*net.TCPAddr).Port)
-	assertCluster(t, &messages, "testSvc2")
-	assertCLA(t, &messages, "testSvc2", testSvc2.Listener.Addr().(*net.TCPAddr).Port)
+	assertCluster(t, &messages, "hello")
+	assertCLA(t, &messages, "hello", testSvc1.Listener.Addr().(*net.TCPAddr).Port)
 	expectedRoutes := []route.Route{
-		routeWithPathPrefix("testSvc1", "/foo"),
-		routeWithRegexPath("testSvc1", "/bar"),
-		routeWithRegexPath("testSvc2", "/hoo"),
-		routeWithPathPrefix("testSvc2", "/car"),
+		routeWithPathPrefix("hello", "/"),
 	}
 	assertRouteConfig(t, messages, expectedRoutes)
 }
@@ -98,7 +88,7 @@ func TestRespondToEnvoyOnRequest(t *testing.T) {
 	_, port, _ := net.SplitHostPort(consulSvr.HTTPAddr)
 	os.Setenv("CONSUL_CLIENT_PORT", port)
 	defer os.Unsetenv("CONSUL_CLIENT_PORT")
-	os.Setenv("WATCHED_SERVICE", "testSvc1")
+	os.Setenv("WATCHED_SERVICE", "hello")
 	defer os.Unsetenv("WATCHED_SERVICE")
 
 	go app.Start()
@@ -122,15 +112,15 @@ func TestRespondToEnvoyOnRequest(t *testing.T) {
 		}
 	}()
 
-	testSvc1 := startTestSvc(consulClient, "testSvc1")
+	testSvc1 := startTestSvc(consulClient, "hello")
 	defer testSvc1.Close()
 
 	stream.Send(&cp.DiscoveryRequest{})
 	stream.CloseSend()
 
-	assertCluster(t, &messages, "testSvc1")
-	assertCLA(t, &messages, "testSvc1", testSvc1.Listener.Addr().(*net.TCPAddr).Port)
-	assertRouteConfig(t, messages, []route.Route{routeWithPathPrefix("testSvc1", "/")})
+	assertCluster(t, &messages, "hello")
+	assertCLA(t, &messages, "hello", testSvc1.Listener.Addr().(*net.TCPAddr).Port)
+	assertRouteConfig(t, messages, []route.Route{routeWithPathPrefix("hello", "/")})
 }
 
 func assertRouteConfig(t *testing.T, messages []google_protobuf5.Any, routes []route.Route) {

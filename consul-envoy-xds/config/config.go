@@ -5,8 +5,9 @@ import (
 
 	"strings"
 
-	"github.com/gojek-engineering/goconfig"
 	"strconv"
+
+	"github.com/gojek-engineering/goconfig"
 )
 
 type Config struct {

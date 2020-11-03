@@ -29,7 +29,6 @@ node:
   cluster: service_greeter
   id: nodeID
 
-static_resources:
   clusters:
   - name: grpc-greeter
     connect_timeout: 0.25s

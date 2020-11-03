@@ -14,7 +14,7 @@ setup-circleci:
 
 setup:
 	go get -u golang.org/x/lint/golint
-	go get github.com/DATA-DOG/godog/cmd/godog
+	 go get github.com/cucumber/godog/cmd/godog@v0.9.0
 	go get -u github.com/go-playground/overalls
 	go mod verify
 	go mod download

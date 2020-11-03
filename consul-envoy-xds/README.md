@@ -8,6 +8,12 @@ If you are using Consul for service discovery and would like to use Envoy withou
 
 ## Building it
 
+Run Consul in docker:
+
+```
+docker run  -p 8500:8500 -p 8600:8600/udp --name=consul consul:v0.6.4 agent -server -bootstrap -ui -client=0.0.0.0
+```
+
 1. We use Dep for dependency management, instructions to install it can be found [here](https://github.com/golang/dep).
 2. Fetch dev dependencies and create dev config (application.yml) from sample.
 
@@ -41,13 +47,13 @@ FOO_SERVICE_WHITELISTED_ROUTES: /foo,/fuu
 BAR_SVC_WHITELISTED_ROUTES: /bar
 ```
 
-For above sample configuration, `consul-envoy-xds` will setup 2 clusters viz. foo-service and bar-svc. The foo-service cluster will have two routes in a virtual host i.e. `/foo` and `/fuu`. Similarly, bar_svc will have a route `/bar` into the same virtual host.
+For above sample configuration, `consul-envoy-xds` will setup 2 clusters. `foo-service` and `bar-svc`. The `foo-service cluster` will have `two routes` in a virtual host i.e. `/foo` and `/fuu`. Similarly, `bar_svc` will have a route `/bar` into the same virtual host.
 
 Currently xDS server implementation configures single virtual host with routes for all upstream clusters based on <X>_WHITELISTED_ROUTES config. This implies no two services can have any whitelisted route with same prefix.
 
 Example entry point on production environments.
 
-`env PORT=8053 LOG_LEVEL=INFO CONSUL_AGENT_PORT=8500 CONSUL_CLIENT_HOST=localhost CONSUL_DC=dc1 CONSUL_TOKEN="" WATCHED_SERVICE=foo-service,bar_svc BAR_SVC_WHITELISTED_ROUTES='/bar' FOO_SERVICE_WHITELISTED_ROUTES='/foo,/fuu' ./consul-envoy-xds`
+`env PORT=8053 LOG_LEVEL=INFO CONSUL_AGENT_PORT=8500 CONSUL_CLIENT_HOST=localhost CONSUL_DC=dc1 CONSUL_TOKEN="" WATCHED_SERVICE=foo-service,bar_svc BAR_SVC_WHITELISTED_ROUTES='/bar' FOO_SERVICE_WHITELISTED_ROUTES='/foo,/fuu' ./out/consul-envoy-xds`
 
 ##### Configuring Regex Paths:
 
@@ -71,7 +77,17 @@ refer to [Regex documentation](https://www.envoyproxy.io/docs/envoy/latest/api-v
 
 #### Sample Config:
 
-Replace `$XDS\_IP` and `$XDS\_PORT` with wherever you're running consul-envoy-xds. Refer to [Envoy documentation](https://www.envoyproxy.io/docs/envoy/latest/api-v2/api) for other options.
+Replace `$XDS\_IP` and `$XDS\_PORT` with wherever you're running consul-envoy-xds. Refer to [Envoy documentation](https://www.envoyproxy.io/docs/envoy/latest/api-v2/api) for other options. Port in our config file is `8053`.
+
+[registrator docker](https://github.com/gliderlabs/registrator) automatically register or docker app on consul service discovery.
+
+```
+docker run --name hello-world1 -d -p 8001:80 containersol/hello-world
+docker run --name hello-world2 -d -p 8002:80 containersol/hello-world
+```
+
+we can use `ip addr | grep eth0` to get host address for our docker container and inner our envoy configuration we can't use `host.docker.internal` because it just work in context docker like `dockerfile` and `docker-compose` but we can't use it inner our envoy configuration and we should use `host address (eth0 ip)` or `localhost` or `IPV6 localhost address ([::1])` in order to access other docker container such as access to `containersol/hello-world` container on expose port `8001`. we can test it after get host ip with `ip addr | grep eth0`.
+
 
 ```yaml
 static_resources:

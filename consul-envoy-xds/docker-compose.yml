@@ -1,0 +1,103 @@
+# version: '2'
+# services:
+
+#   consul:
+#     image: "consul"
+#     hostname: "consul"
+#     command: "agent -dev -client 0.0.0.0"
+#     ports:
+#       - "8400:8400"
+#       - "8500:8500"
+#       - "8600:53/udp"
+#   registrator:
+#     image: gliderlabs/registrator:latest
+#     command: "-ip=127.0.0.1 -cleanup=true -resync=120 -ttl=60 -ttl-refresh=10 consul://consul:8500"
+#     volumes:
+#       - /var/run/docker.sock:/tmp/docker.sock
+#     depends_on:
+#       - consul
+#   # greeter:
+#   #   image: "gojektech/grpc-greeter"
+#   #   hostname: "greeter"
+#   #   depends_on:
+#   #   - registrator
+#   #   expose:
+#   #     - "8443"
+#   #   ports:
+#   #     - "8444:8443"
+#   # consul-xds:
+#   #   build:
+#   #     context: ..
+#   #   environment:
+#   #     - CONSUL_CLIENT_HOST=consul
+#   #     - WATCHED_SERVICE=greeter
+#   #     - CONSUL_TOKEN=blah
+#   #   expose:
+#   #     - "8053"
+#   #   ports:
+#   #     - "8053:8053"
+#   # greeter-envoy:
+#   #   image: envoyproxy/envoy:v1.7.0
+#   #   command: "envoy -c /etc/envoy/envoy-xds.yaml"
+#   #   volumes:
+#   #     - ./envoy-xds.yaml:/etc/envoy/envoy-xds.yaml
+#   #   expose:
+#   #     - "8443"
+#   #     - "9000"
+#   #   ports:
+#   #     - "8443:8443"
+#   #     - "9000:9000"
+version: '2'
+services:
+
+  consul:
+    image: "consul"
+    hostname: "consul"
+    command: "agent -dev -client 0.0.0.0"
+    ports:
+      - "8400:8400"
+      - "8500:8500"
+      - "8600:53/udp"
+  registrator:
+    image: gliderlabs/registrator:latest
+    command: "-ip=127.0.0.1 -cleanup=true -resync=120 -ttl=60 -ttl-refresh=10 consul://consul:8500"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock
+    depends_on:
+      - consul
+  hello-world:
+    image: containersol/hello-world
+    hostname: "hello-world"
+    container_name: hello-world
+    depends_on:
+    - registrator
+    expose:
+      - "80"
+    ports:
+      - "8001:80"
+  consul-xds:
+    image: gojektech/consul-envoy-xds:0.1.0-1389b6876cc82b55a1c78e86fa7304c332d61f50
+    environment:
+      - CONSUL_TOKEN=""
+      - HELLO_WORLD_WHITELISTED_ROUTES=/
+      - CONSUL_DC= dc1
+      - WATCHED_SERVICE=hello-world
+      - PORT= 8053
+      - LOG_LEVEL= DEBUG
+      - CONSUL_CLIENT_PORT= 8500
+      - CONSUL_CLIENT_HOST= consul
+    expose:
+      - "8053"
+    ports:
+      - "8053:8053"
+  hello-world-envoy:
+    image: envoyproxy/envoy:v1.8.0
+    command: "envoy -c /etc/envoy/envoy-xds.yaml -l debug"
+    volumes:
+      - ./envoy-config.yaml:/etc/envoy/envoy-xds.yaml
+    expose:
+      - "8443"
+      - "9000"
+    ports:
+      - "8443:8443"
+      - "9000:9000"

@@ -26,8 +26,7 @@ services:
     ports:
       - "8444:8443"
   consul-xds:
-    build:
-      context: ..
+    image: gojektech/consul-envoy-xds:0.1.0-1389b6876cc82b55a1c78e86fa7304c332d61f50
     environment:
       - CONSUL_CLIENT_HOST=consul
       - WATCHED_SERVICE=greeter
