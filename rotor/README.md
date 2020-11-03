@@ -125,6 +125,8 @@ where `<platform>` is one of: aws, ecs, consul, file, kubernetes, or marathon.
 
 ### Kubernetes
 
+[Install k3s server (master node)](https://kauri.io/38-install-and-configure-a-kubernetes-cluster-with/418b3bc1e0544fbc955a4bbba6fff8a9/a)
+
 Kubernetes requires a number of RBAC objects to be created before running
 Rotor. The easiest way to create all these is via
 [the YAML file](examples/kubernetes-rotor.yaml) in this repo:

@@ -1,0 +1,47 @@
+# static_resources:
+#   listeners:
+#   - name: listener_0
+#     address:
+#       socket_address: { address: 0.0.0.0, port_value: 10000 }
+#     filter_chains:
+#     - filters:
+#       - name: envoy.http_connection_manager
+#         config:
+#           stat_prefix: ingress_http
+#           codec_type: AUTO
+#           route_config:
+#             name: local_route
+#             virtual_hosts:
+#             - name: local_service
+#               domains: ["*"]
+#               routes:
+#               - match: { prefix: "/horse" }
+#                 route: { cluster: horse.turbinelabs.io }
+#           http_filters:
+#           - name: envoy.router
+#   clusters:
+#   - name: horse.turbinelabs.io
+#     connect_timeout: 0.25s
+#     lb_policy: ROUND_ROBIN
+#     type: EDS
+#     eds_cluster_config:
+#       eds_config:
+#         api_config_source:
+#           api_type: GRPC
+#           grpc_services:
+#             - envoy_grpc:
+#                 cluster_name: xds_cluster     
+#   - name: xds_cluster
+#     connect_timeout: 0.25s
+#     type: STATIC
+#     lb_policy: ROUND_ROBIN
+#     http2_protocol_options: {}
+#     hosts: [{ socket_address: { address: 172.17.246.74, port_value: 50000 }}]
+# node:
+#   cluster: service_hello
+#   id: nodeID   
+  
+# admin:
+#   access_log_path: /dev/null
+#   address:
+#     socket_address: { address: 127.0.0.1, port_value: 9999 }

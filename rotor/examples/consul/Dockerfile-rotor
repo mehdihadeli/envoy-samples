@@ -1,6 +1,8 @@
 FROM turbinelabs/rotor:0.19.0
 
+ADD ./static_resources.yml /data/static_resources.yml
 ENV ROTOR_CMD=consul
 ENV ROTOR_CONSUL_DC=dc1
-ENV ROTOR_CONSUL_HOSTPORT=consul:8500
+ENV ROTOR_CONSUL_HOSTPORT=172.17.246.74:8500
 ENV ROTOR_XDS_RESOLVE_DNS=true
+ENV ROTOR_XDS_STATIC_RESOURCES_FILENAME=/data/static_resources.yml
